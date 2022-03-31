@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  app:
+    image: visavis/bizcase-api:latest
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_TYPE=postgres
+      - DATABASE_HOST=db
+      - JWT_SECERT=bizcase_auth_jwt_secret
+      - JWT_EXPIRE_IN=90d
+      - DATABASE_USERNAME=${DATABASE_USERNAME:-postgres}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
+      - DATABASE_NAME=${DATABASE_NAME:-bizcase}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - NODE_ENV=production
+      - KPI_DATABASE_TYPE=${KPI_DATABASE_TYPE:-postgres}
+      - KPI_DATABASE_HOST=${KPI_DATABASE_HOST}
+      - KPI_DATABASE_PORT=${KPI_DATABASE_PORT:-5432}
+      - KPI_DATABASE_USERNAME=${KPI_DATABASE_USERNAME:-postgres}
+      - KPI_DATABASE_PASSWORD=${KPI_DATABASE_PASSWORD}
+      - KPI_DATABASE_NAME=${KPI_DATABASE_NAME}
+    links:
+      - db
+    networks:
+      - cap
+    restart: unless-stopped
+  db:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-bizcase}
+    volumes:
+      - /home/ec2-user/postgres/pgdata:/var/lib/postgresql/data
+    ports:
+      - ${DATABASE_PORT:-5432}:5432
+    networks:
+      - cap
+    restart: unless-stopped
+
+networks:
+  cap:
+    driver: bridge
